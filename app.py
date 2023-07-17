@@ -2,7 +2,7 @@ import fastapi
 import database
 import pydantic_models
 import config
-
+from fastapi import Request
 
 api = fastapi.FastAPI()
 
@@ -32,11 +32,6 @@ fake_database = {'users':[
 
 
 response = {"Ответ":"Который возвращает сервер"}
-
-
-@api.get('/')
-def index():
-    return response
 
 
 @api.get('/static/path')
@@ -103,3 +98,18 @@ def read_user(user_id: str, query: str | None = None):
     if query:
         return {"user_id": user_id, "query": query}
     return {"user_id": user_id}
+
+
+@api.get('/')
+def index(request: Request):  # тут request - будет объектом в котором хранится вся информация о запросе
+    return {"Request" : [request.method, request.headers]}  # а тут в ответ вернутся все хедеры клиентского запроса
+
+
+@api.put('/')
+def index_put(request: Request):
+    return {"Request" : [request.method, request.headers]}
+
+
+@api.delete('/')
+def index_delete(request: Request):
+    return {"Request" : [request.method, request.headers]}
