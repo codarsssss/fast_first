@@ -31,13 +31,22 @@ fake_database = {'users':[
      }
     ], }
 
-
 @api.put('/user/{user_id}')
 def update_user(user_id: int, user: pydantic_models.User = fastapi.Body()): # используя fastapi.Body() мы явно указываем, что отправляем информацию в теле запроса
     for index, u in enumerate(fake_database['users']): # так как в нашей бд юзеры хранятся в списке, нам нужно найти их индексы внутри этого списка
         if u['id'] == user_id:
             fake_database['users'][index] = user    # обновляем юзера в бд по соответствующему ему индексу из списка users
             return user
+
+
+@api.delete('/user/{user_id}')
+def delete_user(user_id: int = fastapi.Path()): # используя fastapi.Path() мы явно указываем, что переменную нужно брать из пути
+    for index, u in enumerate(fake_database['users']): # так как в нашей бд юзеры хранятся в списке, нам нужно найти их индексы внутри этого списка
+        if u['id'] == user_id:
+            old_db = copy.deepcopy(fake_database) # делаем полную копию объекта в переменную old_db, чтобы было с чем сравнить
+            del fake_database['users'][index]    # удаляем юзера из бд
+            return {'old_db' : old_db,
+                    'new_db': fake_database}
 
 
 @api.post('/user/create')
@@ -74,13 +83,3 @@ def read_user(user_id: str, query: str | None = None):
     if query:
         return {"item_id": user_id, "query": query}
     return {"item_id": user_id}
-
-
-@api.delete('/user/{user_id}')
-def delete_user(user_id: int = fastapi.Path()): # используя fastapi.Path() мы явно указываем, что переменную нужно брать из пути
-    for index, u in enumerate(fake_database['users']): # так как в нашей бд юзеры хранятся в списке, нам нужно найти их индексы внутри этого списка
-        if u['id'] == user_id:
-            old_db = copy.deepcopy(fake_database) # делаем полную копию объекта в переменную old_db, чтобы было с чем сравнить
-            del fake_database['users'][index]    # удаляем юзера из бд
-            return {'old_db' : old_db,
-                    'new_db': fake_database}
