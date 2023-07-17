@@ -88,3 +88,18 @@ def get_total_balance():
         total_balance += pydantic_models.User(
             **user).balance  # Тут мы разворачиваем с помощью "**" словарь с нашим юзером в модель pydantic, он её
     return total_balance     #проверяет и автоматически приводит к необходимым типам данных. Делает обхект из словаря
+
+
+@api.get("/users/")
+def get_users(skip: int = 0, limit: int = 10):
+    return fake_database['users'][skip: skip + limit]
+
+
+@api.get("/user/{user_id}")
+def read_user(user_id: str, query: str | None = None):
+    """
+    Тут значение по умолчанию для query будет None
+    """
+    if query:
+        return {"user_id": user_id, "query": query}
+    return {"user_id": user_id}
